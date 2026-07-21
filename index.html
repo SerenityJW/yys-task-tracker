@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>任务面板</title>
+<meta name="robots" content="noindex, nofollow">
 <style>
   :root{
     --bg: #0d1117; --bg-elevated: #151c26; --card: #182130; --card-border: #232d3d; --line: #202a3a;
@@ -149,7 +150,7 @@
     <input type="password" id="loginPassword" placeholder="密码" autocomplete="current-password">
     <button id="loginBtn">登录</button>
     <div class="login-error" id="loginError"></div>
-    <div class="login-status">每个账号的数据完全独立，互不可见</div>
+    <div class="login-status">账号数据互相独立</div>
   </div>
 </div>
 
@@ -232,13 +233,13 @@
       </div>
     </div>
     <div class="accordion" id="accLog">
-      <div class="accordion-head"><div class="t">变更记录（保留7天/最多300条）</div><div class="chev">›</div></div>
+      <div class="accordion-head"><div class="t">变更记录（7天内）</div><div class="chev">›</div></div>
       <div class="accordion-body"><div id="logList"></div></div>
     </div>
 
     <div class="section-title">备份与分享</div>
     <div class="backup-box">
-      <p>完整备份含账号、任务、打卡状态，用于你自己恢复数据。</p>
+      <p>含账号、任务、打卡状态，用于恢复数据。</p>
       <div class="row">
         <button class="btn primary" id="exportBtn">导出完整备份</button>
         <button class="btn" id="importBtn">导入完整备份</button>
@@ -246,7 +247,7 @@
       </div>
     </div>
     <div class="backup-box">
-      <p>任务清单模板只含任务定义（名字/周期/截止日期），不含账号和打卡状态，可以发给朋友导入，不会覆盖对方数据。</p>
+      <p>只含任务定义，不含账号和打卡状态，可发给朋友导入。</p>
       <div class="row">
         <button class="btn" id="exportTemplateBtn">导出任务模板</button>
         <button class="btn" id="importTemplateBtn">导入任务模板</button>
@@ -469,27 +470,26 @@ function renderMatrix(){
   const wrap = document.getElementById('matrixWrap');
   const kind = activeKind;
   const tasks = kind==='daily'?dailyTasks(): kind==='weekly'?weeklyTasks(): eventTasks();
-  const colorVar = kind==='daily'?'var(--daily)': kind==='weekly'?'var(--weekly)':'var(--event)';
-  if(config.accounts.length===0){ wrap.innerHTML='<div class="empty">还没有账号，去「管理」页添加一个吧</div>'; return; }
-  if(tasks.length===0){ wrap.innerHTML='<div class="empty">这个分类还没有任务，去「管理」页添加</div>'; return; }
-  let html = '<div class="matrix-wrap"><table class="matrix"><tr><th class="rowlabel">账号</th>';
+  if(config.accounts.length===0){ wrap.innerHTML='<div class="empty">还没有账号</div>'; return; }
+  if(tasks.length===0){ wrap.innerHTML='<div class="empty">还没有任务</div>'; return; }
+  let html = '<div class="matrix-wrap"><table class="matrix"><tr><th class="rowlabel">任务</th>';
+  config.accounts.forEach(acc=>{
+    html += '<th class="collabel">'+escapeHtml(acc.name)+'</th>';
+  });
+  html += '</tr>';
   tasks.forEach(t=>{
     let tag = '';
     if(kind==='event') tag = '<span class="cadence-tag event">'+cadenceLabel(t.cadence)+'</span>';
-    html += '<th class="collabel">'+escapeHtml(t.name)+tag+'</th>';
-  });
-  html += '</tr>';
-  config.accounts.forEach(acc=>{
-    ensureAccountChecks(acc.id);
-    html += '<tr><td class="rowlabel">'+escapeHtml(acc.name)+'</td>';
-    tasks.forEach(t=>{
+    let expiredNote = '';
+    if(kind==='event' && t.endDate){
+      const dLeft = daysUntil(t.endDate);
+      if(dLeft!==null && dLeft<0) expiredNote = '<span class="task-expired-note">已结束</span>';
+    }
+    html += '<tr><td class="rowlabel">'+escapeHtml(t.name)+tag+expiredNote+'</td>';
+    config.accounts.forEach(acc=>{
+      ensureAccountChecks(acc.id);
       const checked = !!state.checks[acc.id][t.id];
-      let expiredNote = '';
-      if(kind==='event' && t.endDate){
-        const dLeft = daysUntil(t.endDate);
-        if(dLeft!==null && dLeft<0) expiredNote = '<span class="task-expired-note">已结束</span>';
-      }
-      html += '<td><div class="cbx '+t.cadence+' '+(checked?'checked':'')+'" data-acc="'+acc.id+'" data-task="'+t.id+'">'+CHECK_SVG+'</div>'+expiredNote+'</td>';
+      html += '<td><div class="cbx '+t.cadence+' '+(checked?'checked':'')+'" data-acc="'+acc.id+'" data-task="'+t.id+'">'+CHECK_SVG+'</div></td>';
     });
     html += '</tr>';
   });
@@ -527,7 +527,7 @@ function renderStats(){
       cell(eD,et.length,'var(--event)')+
       '</tr>';
   });
-  html += '</table><div class="stat-note">数字全部完成时显示对应分类颜色，未完成显示灰色；该分类没有任务时显示 —</div>';
+  html += '</table><div class="stat-note">完成显示彩色，未完成灰色，无任务显示 —</div>';
   wrap.innerHTML = html;
 }
 
@@ -585,7 +585,7 @@ async function moveAccount(id,dir){
 }
 async function removeAccount(id){
   const acc=config.accounts.find(a=>a.id===id);
-  const ok=await confirmDialog('确定删除账号「'+(acc?acc.name:'')+'」吗？该账号的所有打卡记录将一并清除。',{showBackup:true});
+  const ok=await confirmDialog('删除账号「'+(acc?acc.name:'')+'」？打卡记录也会一并清除。',{showBackup:true});
   if(!ok) return;
   config.accounts=config.accounts.filter(a=>a.id!==id); delete state.checks[id];
   renderAll(); await saveConfig(); await saveState();
@@ -604,7 +604,7 @@ async function addEventTaskFn(name,cadence,endDate){
 async function removeTask(id){
   const t=config.tasks.find(x=>x.id===id); if(!t) return;
   const label = isEvent(t)?'版本活动': isDaily(t)?'每日':'每周';
-  const ok=await confirmDialog('确定删除'+label+'任务「'+t.name+'」吗？所有账号在该任务下的打卡记录将一并清除。',{showBackup:true});
+  const ok=await confirmDialog('删除'+label+'任务「'+t.name+'」？所有账号的打卡记录也会清除。',{showBackup:true});
   if(!ok) return;
   config.tasks=config.tasks.filter(x=>x.id!==id);
   Object.keys(state.checks).forEach(accId=> delete state.checks[accId][id]);
@@ -615,7 +615,7 @@ async function clearCurrentCategory(){
   const kind=activeKind;
   const tasks = kind==='daily'?dailyTasks(): kind==='weekly'?weeklyTasks(): eventTasks();
   const label = kind==='daily'?'每日': kind==='weekly'?'每周':'版本活动';
-  const ok=await confirmDialog('清空前建议先导出备份，避免数据丢失。确定要一键清空所有账号的「'+label+'」打卡状态吗？',{showBackup:true});
+  const ok=await confirmDialog('清空所有账号的「'+label+'」打卡状态？建议先导出备份。',{showBackup:true});
   if(!ok) return;
   const ids = tasks.map(t=>t.id);
   Object.keys(state.checks).forEach(accId=> ids.forEach(tid=> delete state.checks[accId][tid]));
@@ -633,7 +633,7 @@ async function importBackupFile(file){
   const text=await file.text(); let payload;
   try{ payload=JSON.parse(text); }catch(e){ showToast('文件格式不正确'); return; }
   if(!payload.config||!payload.state){ showToast('备份文件内容不完整'); return; }
-  const ok=await confirmDialog('导入将覆盖云端当前所有数据（账号、任务、打卡状态），确定要导入吗？',{showBackup:false});
+  const ok=await confirmDialog('导入将覆盖当前所有数据（账号、任务、打卡状态），确定导入？',{showBackup:false});
   if(!ok) return;
   config=migrateConfig(payload.config); state=migrateState(payload.state);
   config.accounts.forEach(a=>ensureAccountChecks(a.id));
@@ -650,7 +650,7 @@ async function importTemplateFile(file){
   const text=await file.text(); let payload;
   try{ payload=JSON.parse(text); }catch(e){ showToast('文件格式不正确'); return; }
   if(!payload.tasks || !Array.isArray(payload.tasks)){ showToast('模板文件内容不完整'); return; }
-  const ok=await confirmDialog('将把这份任务模板中的 '+payload.tasks.length+' 项任务追加到你当前的任务列表，不会影响你现有的账号和打卡状态，确定导入吗？',{showBackup:false});
+  const ok=await confirmDialog('追加这 '+payload.tasks.length+' 项任务到你的列表？不影响现有账号和打卡状态。',{showBackup:false});
   if(!ok) return;
   payload.tasks.forEach(t=>{
     config.tasks.push({id:uid(), name:t.name, cadence:t.cadence||'daily', endDate:t.endDate||null});
