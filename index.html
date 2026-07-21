@@ -86,7 +86,7 @@
   .section-title:first-child{ margin-top: 4px; }
 
   table.stats{ width:100%; border-collapse:collapse; font-family: ui-monospace, monospace; font-size:12px; }
-  table.stats th{ padding:6px 4px; text-align:right; font-size:9px; text-transform:uppercase; color:var(--text-faint); font-weight:400; }
+  table.stats th{ padding:6px 4px; text-align:right; font-size:12px; text-transform:uppercase; color:var(--text-faint); font-weight:400; }
   table.stats th:first-child{ text-align:left; }
   table.stats td{ padding:9px 4px; text-align:right; border-top:1px solid var(--line); }
   table.stats td:first-child{ text-align:left; font-family:-apple-system,sans-serif; font-size:13px; color:var(--text); }
@@ -179,10 +179,10 @@
       <div class="subtab weekly" data-kind="weekly">每周</div>
       <div class="subtab event" data-kind="event">版本活动</div>
     </div>
-    <div class="toolbar">
+    <div id="matrixWrap"></div>
+    <div class="toolbar" style="margin-top:14px;">
       <button class="btn danger" id="clearCurrentBtn">一键清空当前分类</button>
     </div>
-    <div id="matrixWrap"></div>
   </div>
 
   <div class="panel" id="panel-stats">
@@ -587,7 +587,7 @@ async function moveAccount(id,dir){
 }
 async function removeAccount(id){
   const acc=config.accounts.find(a=>a.id===id);
-  const ok=await confirmDialog('删除账号「'+(acc?acc.name:'')+'」？打卡记录也会一并清除。',{showBackup:true});
+  const ok=await confirmDialog('删除账号「'+(acc?acc.name:'')+'」？打卡记录也会一并清除。',{showBackup:false});
   if(!ok) return;
   config.accounts=config.accounts.filter(a=>a.id!==id); delete state.checks[id];
   renderAll(); await saveConfig(); await saveState();
@@ -606,7 +606,7 @@ async function addEventTaskFn(name,cadence,endDate){
 async function removeTask(id){
   const t=config.tasks.find(x=>x.id===id); if(!t) return;
   const label = isEvent(t)?'版本活动': isDaily(t)?'每日':'每周';
-  const ok=await confirmDialog('删除'+label+'任务「'+t.name+'」？所有账号的打卡记录也会清除。',{showBackup:true});
+  const ok=await confirmDialog('删除'+label+'任务「'+t.name+'」？所有账号的打卡记录也会清除。',{showBackup:false});
   if(!ok) return;
   config.tasks=config.tasks.filter(x=>x.id!==id);
   Object.keys(state.checks).forEach(accId=> delete state.checks[accId][id]);
