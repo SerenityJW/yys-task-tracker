@@ -64,7 +64,7 @@
   table.matrix th, table.matrix td{ padding: 8px 10px; text-align:center; border-top: 1px solid var(--line); }
   table.matrix th{ color: var(--text-faint); font-weight:400; border-top:none; }
   table.matrix .rowlabel{ position: sticky; left:0; background: var(--card); text-align:left; font-family:-apple-system,sans-serif; font-size:13px; color:var(--text); z-index:1; }
-  table.matrix .collabel{ min-width: 64px; }
+  table.matrix .collabel{ min-width: 64px; color: var(--text); font-weight:600; }
   .cadence-tag{ display:block; font-size:9px; margin-top:2px; }
   .cadence-tag.event{ color: var(--event); }
   .cbx{ width:18px; height:18px; border-radius:5px; border:1.5px solid var(--text-faint); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
@@ -486,10 +486,11 @@ function renderMatrix(){
       if(dLeft!==null && dLeft<0) expiredNote = '<span class="task-expired-note">已结束</span>';
     }
     html += '<tr><td class="rowlabel">'+escapeHtml(t.name)+tag+expiredNote+'</td>';
+    const safeCadence = ['daily','weekly','once'].includes(t.cadence) ? t.cadence : 'once';
     config.accounts.forEach(acc=>{
       ensureAccountChecks(acc.id);
       const checked = !!state.checks[acc.id][t.id];
-      html += '<td><div class="cbx '+t.cadence+' '+(checked?'checked':'')+'" data-acc="'+acc.id+'" data-task="'+t.id+'">'+CHECK_SVG+'</div></td>';
+      html += '<td><div class="cbx '+safeCadence+' '+(checked?'checked':'')+'" data-acc="'+acc.id+'" data-task="'+t.id+'">'+CHECK_SVG+'</div></td>';
     });
     html += '</tr>';
   });
@@ -553,7 +554,7 @@ function renderManageTaskList(containerId, list, kindLabel, listName){
     if(listName==='event'){
       const dLeft = daysUntil(t.endDate);
       const dText = dLeft===null?'':dLeft<0?'已结束':dLeft===0?'今天截止':'还剩'+dLeft+'天';
-      dInfo = '<div class="d">周期：'+cadenceLabel(t.cadence)+' · 截止 '+(t.endDate||'-')+' · '+dText+'</div>';
+      dInfo = '<div class="d">周期：'+cadenceLabel(t.cadence)+' · 截止 '+escapeHtml(t.endDate||'-')+' · '+dText+'</div>';
     }
     row.innerHTML = '<div class="info"><div class="n">'+escapeHtml(t.name)+'</div>'+dInfo+'</div><button class="del">删除</button>';
     row.querySelector('.del').onclick=()=>removeTask(t.id);
@@ -653,7 +654,8 @@ async function importTemplateFile(file){
   const ok=await confirmDialog('追加这 '+payload.tasks.length+' 项任务到你的列表？不影响现有账号和打卡状态。',{showBackup:false});
   if(!ok) return;
   payload.tasks.forEach(t=>{
-    config.tasks.push({id:uid(), name:t.name, cadence:t.cadence||'daily', endDate:t.endDate||null});
+    const safeCadence = ['daily','weekly','once'].includes(t.cadence) ? t.cadence : 'daily';
+    config.tasks.push({id:uid(), name:String(t.name||'').slice(0,60), cadence:safeCadence, endDate:t.endDate||null});
   });
   renderAll(); await saveConfig();
   await addLog('导入任务清单模板，新增 '+payload.tasks.length+' 项任务');
