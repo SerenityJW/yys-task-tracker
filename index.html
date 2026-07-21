@@ -105,9 +105,12 @@
   .manage-row .info{ flex:1; min-width:0; }
   .manage-row .info .n{ font-size:13px; }
   .manage-row .info .d{ font-size:10.5px; color: var(--text-faint); font-family: ui-monospace, monospace; margin-top:2px; }
-  .manage-row button{ background:none; border:none; color: var(--danger); font-size: 12px; padding:4px 6px; flex-shrink:0; }
-  .manage-row .reorder{ display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
-  .manage-row .reorder button{ color: var(--text-dim); font-size: 13px; padding:0 6px; line-height:1; }
+  .manage-row button.del{ background:none; border:none; color: var(--danger); padding:4px 6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .manage-row button.del svg{ width:16px; height:16px; }
+  .drag-handle{ color: var(--text-faint); flex-shrink:0; padding: 4px 8px 4px 0; cursor: grab; touch-action: none; display:flex; align-items:center; justify-content:center; font-size: 16px; line-height:1; }
+  .drag-handle:active{ cursor: grabbing; }
+  .manage-row.sortable-ghost{ opacity: 0.35; }
+  .manage-row.sortable-chosen .info .n{ color: var(--daily); }
   .add-row{ display:flex; gap:6px; margin: 10px 0 4px; flex-wrap:wrap; }
   .add-row input[type="text"]{ flex:1; min-width: 110px; }
   .add-row input, .add-row select{ background: var(--bg-elevated); border:1px solid var(--card-border); color: var(--text); border-radius: 8px; padding: 8px 10px; font-size:13px; outline:none; }
@@ -193,7 +196,7 @@
     <div class="section-title">当前登录邮箱</div>
     <div class="backup-box"><p style="margin:0;"><span class="account-name-inline" id="currentEmail">-</span></p></div>
 
-    <div class="section-title">账号（▲▼ 排序，任务页同步）</div>
+    <div class="section-title">账号（拖动 ≡ 排序，任务页同步）</div>
     <div id="manageAccounts"></div>
     <div class="add-row">
       <input type="text" id="newAccountInput" placeholder="新账号名称，例如：小号3">
@@ -290,6 +293,7 @@
 </div>
 
 <script type="module">
+import Sortable from "https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/modular/sortable.esm.js";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 import {
@@ -312,6 +316,21 @@ try{ db = initializeFirestore(app, { localCache: persistentLocalCache() }); }
 catch(e){ db = getFirestore(app); }
 
 const CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+const DRAG_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>';
+const TRASH_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+function initSortable(container, onReorder){
+  if(container._sortableInstance){ container._sortableInstance.destroy(); }
+  container._sortableInstance = new Sortable(container, {
+    handle: '.drag-handle',
+    animation: 150,
+    ghostClass: 'sortable-ghost',
+    chosenClass: 'sortable-chosen',
+    onEnd: ()=>{
+      const newIds = Array.from(container.children).map(el=>el.dataset.id);
+      onReorder(newIds);
+    }
+  });
+}
 const LOG_RETENTION_MS = 7*24*60*60*1000;
 const LOG_MAX_COUNT = 300;
 
@@ -498,13 +517,15 @@ function renderMatrix(){
   html += '</table></div>';
   wrap.innerHTML = html;
   wrap.querySelectorAll('.cbx').forEach(el=>{
-    el.addEventListener('click', ()=> toggleCheck(el.dataset.acc, el.dataset.task));
+    el.addEventListener('click', ()=> toggleCheck(el.dataset.acc, el.dataset.task, el));
   });
 }
-async function toggleCheck(accId, taskId){
+async function toggleCheck(accId, taskId, el){
   ensureAccountChecks(accId);
-  state.checks[accId][taskId] = !state.checks[accId][taskId];
-  renderMatrix(); renderHud();
+  const nowChecked = !state.checks[accId][taskId];
+  state.checks[accId][taskId] = nowChecked;
+  if(el) el.classList.toggle('checked', nowChecked);
+  renderHud();
   await saveState();
 }
 
@@ -536,30 +557,48 @@ function renderStats(){
 function renderManageAccounts(){
   const wrap = document.getElementById('manageAccounts');
   wrap.innerHTML='';
-  config.accounts.forEach((a,idx)=>{
-    const row=document.createElement('div'); row.className='manage-row';
+  config.accounts.forEach((a)=>{
+    const row=document.createElement('div'); row.className='manage-row'; row.dataset.id=a.id;
     row.innerHTML =
-      '<div class="reorder"><button data-dir="-1" '+(idx===0?'style="opacity:.3"':'')+'>▲</button><button data-dir="1" '+(idx===config.accounts.length-1?'style="opacity:.3"':'')+'>▼</button></div>'+
-      '<div class="info"><div class="n">'+escapeHtml(a.name)+'</div></div><button class="del">删除</button>';
-    row.querySelectorAll('.reorder button').forEach(b=> b.onclick=()=>moveAccount(a.id,parseInt(b.dataset.dir)));
+      '<div class="drag-handle">'+DRAG_SVG+'</div>'+
+      '<div class="info"><div class="n">'+escapeHtml(a.name)+'</div></div>'+
+      '<button class="del">'+TRASH_SVG+'</button>';
     row.querySelector('.del').onclick=()=>removeAccount(a.id);
     wrap.appendChild(row);
+  });
+  initSortable(wrap, (newIds)=>{
+    const map={}; config.accounts.forEach(a=> map[a.id]=a);
+    config.accounts = newIds.map(id=>map[id]).filter(Boolean);
+    renderMatrix(); renderHud(); renderStats();
+    saveConfig();
   });
 }
 function renderManageTaskList(containerId, list, kindLabel, listName){
   const wrap = document.getElementById(containerId);
   wrap.innerHTML='';
   list.forEach(t=>{
-    const row=document.createElement('div'); row.className='manage-row';
+    const row=document.createElement('div'); row.className='manage-row'; row.dataset.id=t.id;
     let dInfo = '';
     if(listName==='event'){
       const dLeft = daysUntil(t.endDate);
       const dText = dLeft===null?'':dLeft<0?'已结束':dLeft===0?'今天截止':'还剩'+dLeft+'天';
       dInfo = '<div class="d">周期：'+cadenceLabel(t.cadence)+' · 截止 '+escapeHtml(t.endDate||'-')+' · '+dText+'</div>';
     }
-    row.innerHTML = '<div class="info"><div class="n">'+escapeHtml(t.name)+'</div>'+dInfo+'</div><button class="del">删除</button>';
+    row.innerHTML =
+      '<div class="drag-handle">'+DRAG_SVG+'</div>'+
+      '<div class="info"><div class="n">'+escapeHtml(t.name)+'</div>'+dInfo+'</div>'+
+      '<button class="del">'+TRASH_SVG+'</button>';
     row.querySelector('.del').onclick=()=>removeTask(t.id);
     wrap.appendChild(row);
+  });
+  const filterFn = listName==='daily'?isDaily: listName==='weekly'?isWeekly: isEvent;
+  initSortable(wrap, (newIds)=>{
+    const others = config.tasks.filter(t=>!filterFn(t));
+    const map={}; config.tasks.filter(filterFn).forEach(t=> map[t.id]=t);
+    const reordered = newIds.map(id=>map[id]).filter(Boolean);
+    config.tasks = others.concat(reordered);
+    renderMatrix(); renderHud();
+    saveConfig();
   });
 }
 function renderManage(){
@@ -578,12 +617,6 @@ async function addAccount(name){
   const acc={id:uid(),name}; config.accounts.push(acc); ensureAccountChecks(acc.id);
   renderAll(); await saveConfig(); await saveState();
   await addLog('新增账号「'+name+'」');
-}
-async function moveAccount(id,dir){
-  const idx=config.accounts.findIndex(a=>a.id===id); const n=idx+dir;
-  if(n<0||n>=config.accounts.length) return;
-  const tmp=config.accounts[idx]; config.accounts[idx]=config.accounts[n]; config.accounts[n]=tmp;
-  renderAll(); await saveConfig();
 }
 async function removeAccount(id){
   const acc=config.accounts.find(a=>a.id===id);
