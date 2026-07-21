@@ -108,6 +108,7 @@
   .manage-row button.del{ background:none; border:none; color: var(--danger); padding:4px 6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
   .manage-row button.del svg{ width:16px; height:16px; }
   .drag-handle{ color: var(--text-faint); flex-shrink:0; padding: 4px 8px 4px 0; cursor: grab; touch-action: none; display:flex; align-items:center; justify-content:center; font-size: 16px; line-height:1; }
+  .drag-handle svg{ width:18px; height:18px; display:block; }
   .drag-handle:active{ cursor: grabbing; }
   .manage-row.sortable-ghost{ opacity: 0.35; }
   .manage-row.sortable-chosen .info .n{ color: var(--daily); }
@@ -122,11 +123,51 @@
   .backup-box .row{ display:flex; gap:8px; flex-wrap: wrap; }
   .account-name-inline{ font-size:13px; color: var(--text-dim); word-break: break-all; }
 
+  .log-box{ background: var(--card); border:1px solid var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); max-height: 280px; overflow-y: auto; padding: 0 14px; margin-bottom: 12px; }
+  .log-box .empty{ padding: 20px; }
+
+  .todo-list{ background: var(--card); border:1px solid var(--card-border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0 14px; margin-bottom: 8px; }
+  .todo-row{ display:flex; align-items:center; gap:8px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .todo-row:last-child{ border-bottom:none; }
+  .todo-row .txt{ flex:1; min-width:0; font-size:13px; word-break: break-word; }
+  .todo-row button{ background:none; border:none; color: var(--danger); padding:4px 6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .todo-row button svg{ width:16px; height:16px; }
+
   .log-item{ padding: 8px 0; border-bottom: 1px solid var(--line); font-size:12px; }
   .log-item:last-child{ border-bottom:none; }
   .log-item .t{ color: var(--text-faint); font-family: ui-monospace, monospace; font-size:10px; }
   .log-item .m{ color: var(--text); margin-top:2px; }
   .log-item .e{ color: var(--text-faint); font-size:10px; }
+
+  .tab-icon-wrap{ position:relative; display:inline-flex; }
+  .tab-badge{ display:none; position:absolute; top:-2px; right:-4px; width:7px; height:7px; border-radius:50%; background: var(--danger); }
+  .tab-badge.show{ display:block; }
+
+  .tz-toggle{ display:flex; background: var(--card); border:1px solid var(--card-border); border-radius:10px; padding:3px; margin-bottom:12px; box-shadow: var(--shadow); }
+  .tz-toggle .tz-btn{ flex:1; background:none; border:none; padding:7px; border-radius:8px; font-size:12px; color: var(--text-faint); }
+  .tz-toggle .tz-btn.active{ background: var(--bg-elevated); color: var(--daily); font-weight:600; box-shadow: var(--shadow); }
+
+  .foster-card{ background: var(--card); border:1px solid var(--card-border); border-radius:14px; padding:12px 14px; margin-bottom:8px; box-shadow: var(--shadow); }
+  .foster-card.due{ border-color: var(--weekly); }
+  .foster-card .acc{ font-size:13px; color: var(--text); }
+  .foster-card .row2{ margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .foster-card .next-time{ font-family: ui-monospace, monospace; font-size:13px; color: var(--daily); }
+  .foster-card .due-label{ font-size:11px; color: var(--weekly); font-weight:600; }
+  .foster-card .del-btn{ width:26px; height:26px; border-radius:7px; border:1px solid var(--danger-dim); background: var(--bg-elevated); color: var(--danger); display:flex; align-items:center; justify-content:center; padding:0; flex-shrink:0; }
+  .foster-card .del-btn svg{ width:14px; height:14px; }
+  .foster-card .due-form{ margin-top:8px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .foster-card .due-form input[type="number"]{ width:48px; height:30px; font-size:12px; padding:0 6px; background: var(--bg-elevated); border:1px solid var(--card-border); border-radius:8px; color: var(--text); }
+  .foster-card .due-form .unit{ font-size:12px; color: var(--text-dim); }
+  .foster-card .due-form button{ margin-left:auto; height:30px; padding:0 12px; border-radius:8px; background: var(--daily); color: var(--bg); border:none; font-size:12px; font-weight:600; }
+
+  .log-entry-row{ display:flex; justify-content:space-between; align-items:center; background: var(--card); border:1px solid var(--card-border); border-radius: var(--radius); padding: 11px 14px; box-shadow: var(--shadow); margin-bottom: 12px; font-size:13px; }
+  .log-entry-row .chev{ color: var(--text-faint); font-size:12px; }
+  #logPage{ display:none; position:fixed; inset:0; z-index:40; background: var(--bg); overflow-y:auto; }
+  #logPage.open{ display:block; }
+  .log-page-header{ position:sticky; top:0; background: rgba(255,255,255,0.98); backdrop-filter: blur(10px); border-bottom:1px solid var(--line); padding:14px 16px; display:flex; align-items:center; gap:10px; }
+  .log-back-btn{ background:none; border:none; color: var(--daily); font-size:14px; font-weight:600; padding:4px 6px 4px 0; }
+  .log-page-title{ font-family: ui-monospace, monospace; font-weight:800; font-size:15px; }
+  .log-page-body{ padding:14px 12px 24px; max-width:640px; margin:0 auto; }
 
   .toast{ position: fixed; bottom: 90px; left:50%; transform: translateX(-50%); background: var(--bg-elevated); border:1px solid var(--card-border); color: var(--text); padding: 9px 16px; border-radius: 20px; font-size:13px; z-index: 50; opacity:0; pointer-events:none; transition: opacity .2s ease, transform .2s ease; max-width: 90%; text-align:center; box-shadow: 0 4px 12px rgba(16,24,40,0.12); }
   .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
@@ -190,6 +231,20 @@
 
   <div class="panel" id="panel-stats">
     <div id="statsWrap"></div>
+    <div class="section-title">待办事项</div>
+    <div id="todoWrap"></div>
+    <div class="add-row">
+      <input type="text" id="newTodoInput" placeholder="新增待办事项">
+      <button id="addTodoBtn">添加</button>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-foster">
+    <div class="tz-toggle" id="tzToggle">
+      <button class="tz-btn active" data-tz="Asia/Shanghai">北京时间</button>
+      <button class="tz-btn" data-tz="America/Vancouver">温哥华时间</button>
+    </div>
+    <div id="fosterWrap"></div>
   </div>
 
   <div class="panel" id="panel-manage">
@@ -236,9 +291,10 @@
         </div>
       </div>
     </div>
-    <div class="accordion" id="accLog">
-      <div class="accordion-head"><div class="t">变更记录（7天内）</div><div class="chev">›</div></div>
-      <div class="accordion-body"><div id="logList"></div></div>
+    <div class="section-title">变更记录</div>
+    <div class="log-entry-row" id="openLogPage">
+      <span>变更记录（7天内）</span>
+      <span class="chev">›</span>
     </div>
 
     <div class="section-title">备份与分享</div>
@@ -262,6 +318,16 @@
 </main>
 </div>
 
+<div id="logPage">
+  <div class="log-page-header">
+    <button id="logBackBtn" class="log-back-btn">‹ 返回</button>
+    <div class="log-page-title">变更记录（7天内）</div>
+  </div>
+  <div class="log-page-body">
+    <div id="logListFull"></div>
+  </div>
+</div>
+
 <nav class="tabbar">
   <button class="tab-btn active" data-panel="panel-tasks">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -270,6 +336,13 @@
   <button class="tab-btn" data-panel="panel-stats">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></svg>
     统计
+  </button>
+  <button class="tab-btn" data-panel="panel-foster">
+    <span class="tab-icon-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      <span class="tab-badge" id="fosterBadge"></span>
+    </span>
+    寄养
   </button>
   <button class="tab-btn" data-panel="panel-manage">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H9a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V9a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>
@@ -338,6 +411,7 @@ let currentUser = null;
 let config = null, state = null;
 let activeKind = 'daily';
 let openSections = new Set();
+let fosterTz = 'Asia/Shanghai';
 
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function bjTimeStr(d){ d=d||new Date(); return new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',hour:'2-digit',minute:'2-digit',hour12:false}).format(d); }
@@ -370,7 +444,7 @@ function defaultConfig(){
     ]
   };
 }
-function defaultState(){ return { checks: {}, lastDailyReset: null, lastWeeklyReset: null }; }
+function defaultState(){ return { checks: {}, lastDailyReset: null, lastWeeklyReset: null, todos: [], foster: {} }; }
 
 function migrateConfig(c){
   if(!c.tasks){
@@ -391,6 +465,8 @@ function migrateState(s){
   });
   if(s.lastDailyReset===undefined) s.lastDailyReset = null;
   if(s.lastWeeklyReset===undefined) s.lastWeeklyReset = null;
+  if(!Array.isArray(s.todos)) s.todos = [];
+  if(!s.foster || typeof s.foster!=='object') s.foster = {};
   return s;
 }
 function ensureAccountChecks(accId){ if(!state.checks[accId]) state.checks[accId] = {}; }
@@ -530,6 +606,7 @@ async function toggleCheck(accId, taskId, el){
 }
 
 function renderStats(){
+  renderTodos();
   const wrap = document.getElementById('statsWrap');
   const dt=dailyTasks(), wt=weeklyTasks(), et=eventTasks();
   if(config.accounts.length===0){ wrap.innerHTML='<div class="empty">暂无账号数据</div>'; return; }
@@ -552,6 +629,117 @@ function renderStats(){
   });
   html += '</table><div class="stat-note">完成显示彩色，未完成灰色，无任务显示 —</div>';
   wrap.innerHTML = html;
+}
+
+function renderTodos(){
+  const wrap = document.getElementById('todoWrap');
+  if(!wrap) return;
+  if(!state.todos || state.todos.length===0){ wrap.innerHTML='<div class="todo-list"><div class="empty">暂无待办事项</div></div>'; return; }
+  let html = '<div class="todo-list">';
+  state.todos.forEach(item=>{
+    html += '<div class="todo-row"><div class="txt">'+escapeHtml(item.text)+'</div><button class="del" data-id="'+item.id+'">'+TRASH_SVG+'</button></div>';
+  });
+  html += '</div>';
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.todo-row .del').forEach(btn=>{
+    btn.addEventListener('click', ()=> removeTodo(btn.dataset.id));
+  });
+}
+async function addTodo(text){
+  if(!state.todos) state.todos = [];
+  state.todos.push({ id: uid(), text });
+  renderTodos();
+  await saveState();
+}
+async function removeTodo(id){
+  state.todos = (state.todos||[]).filter(t=>t.id!==id);
+  renderTodos();
+  await saveState();
+}
+
+function fosterTimeStr(ms, tz){
+  const d = new Date(ms);
+  const dateKeyOf = (date)=> new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(date);
+  const timeStr = new Intl.DateTimeFormat('zh-CN',{timeZone:tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
+  const targetKey = dateKeyOf(d);
+  const todayKey = dateKeyOf(new Date());
+  const tomorrowKey = dateKeyOf(new Date(Date.now()+86400000));
+  let prefix = '';
+  if(targetKey===tomorrowKey) prefix='明天 ';
+  else if(targetKey!==todayKey) prefix=targetKey.slice(5)+' ';
+  return prefix+timeStr;
+}
+function isFosterDue(accId){
+  if(!state.foster) state.foster = {};
+  const f = state.foster[accId];
+  return !f || !f.next || f.next <= Date.now();
+}
+function anyFosterDue(){
+  return config.accounts.some(a=> isFosterDue(a.id));
+}
+function updateFosterBadge(){
+  const badge = document.getElementById('fosterBadge');
+  if(!badge) return;
+  badge.classList.toggle('show', anyFosterDue());
+}
+function renderFoster(){
+  const wrap = document.getElementById('fosterWrap');
+  if(!wrap) return;
+  if(!state.foster) state.foster = {};
+  if(config.accounts.length===0){ wrap.innerHTML='<div class="empty">还没有账号</div>'; updateFosterBadge(); return; }
+  let html = '';
+  config.accounts.forEach(acc=>{
+    const due = isFosterDue(acc.id);
+    const f = state.foster[acc.id];
+    html += '<div class="foster-card'+(due?' due':'')+'" data-acc="'+acc.id+'">';
+    html += '<div class="acc">'+escapeHtml(acc.name)+'</div>';
+    if(due){
+      html += '<div class="row2"><span class="due-label">待寄养</span></div>'+
+        '<div class="due-form">'+
+          '<input type="number" class="foster-h" min="0" max="99" value="6">'+
+          '<span class="unit">时</span>'+
+          '<input type="number" class="foster-m" min="0" max="59" value="0">'+
+          '<span class="unit">分</span>'+
+          '<button class="foster-go">寄养</button>'+
+        '</div>';
+    } else {
+      html += '<div class="row2"><span class="next-time">下次寄养 '+fosterTimeStr(f.next, fosterTz)+'</span>'+
+        '<button class="del-btn foster-del" aria-label="删除，重置为未寄养">'+TRASH_SVG+'</button></div>';
+    }
+    html += '</div>';
+  });
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.foster-go').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.foster-card');
+      const accId = card.dataset.acc;
+      const h = parseInt(card.querySelector('.foster-h').value, 10);
+      const m = parseInt(card.querySelector('.foster-m').value, 10);
+      const safeH = Number.isFinite(h) && h>=0 ? h : 6;
+      const safeM = Number.isFinite(m) && m>=0 ? m : 0;
+      recordFoster(accId, safeH, safeM);
+    });
+  });
+  wrap.querySelectorAll('.foster-del').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const card = btn.closest('.foster-card');
+      resetFoster(card.dataset.acc);
+    });
+  });
+  updateFosterBadge();
+}
+async function recordFoster(accId, hours, minutes){
+  if(!state.foster) state.foster = {};
+  const durationMs = (hours*60+minutes)*60000;
+  state.foster[accId] = { next: Date.now()+durationMs };
+  renderFoster();
+  await saveState();
+}
+async function resetFoster(accId){
+  if(state.foster) delete state.foster[accId];
+  renderFoster();
+  await saveState();
+  showToast('已重置为未寄养');
 }
 
 function renderManageAccounts(){
@@ -607,10 +795,10 @@ function renderManage(){
   renderManageTaskList('manageDaily', dailyTasks(), '每日', 'daily');
   renderManageTaskList('manageWeekly', weeklyTasks(), '每周', 'weekly');
   renderManageTaskList('manageEvent', eventTasks(), '版本活动', 'event');
-  renderLogs();
+  pruneAndRenderLogs();
 }
 
-function renderAll(){ renderHud(); renderMatrix(); renderStats(); renderManage(); }
+function renderAll(){ renderHud(); renderMatrix(); renderStats(); renderManage(); renderFoster(); }
 
 // ---------- mutations ----------
 async function addAccount(name){
@@ -623,6 +811,7 @@ async function removeAccount(id){
   const ok=await confirmDialog('删除账号「'+(acc?acc.name:'')+'」？打卡记录也会一并清除。',{showBackup:false});
   if(!ok) return;
   config.accounts=config.accounts.filter(a=>a.id!==id); delete state.checks[id];
+  if(state.foster) delete state.foster[id];
   renderAll(); await saveConfig(); await saveState();
   await addLog('删除账号「'+(acc?acc.name:id)+'」');
 }
@@ -733,14 +922,13 @@ async function pruneAndRenderLogs(){
   }catch(e){ console.error(e); }
 }
 function renderLogsData(items){
-  const wrap=document.getElementById('logList');
+  const wrap=document.getElementById('logListFull');
   if(!wrap) return;
   if(!items || items.length===0){ wrap.innerHTML='<div class="empty">暂无记录</div>'; return; }
   wrap.innerHTML = items.map(it=>
     '<div class="log-item"><div class="t">'+escapeHtml(it.ts)+' · <span class="e">'+escapeHtml(it.email||'')+'</span></div><div class="m">'+escapeHtml(it.action)+'</div></div>'
   ).join('');
 }
-function renderLogs(){ pruneAndRenderLogs(); }
 
 // ---------- events ----------
 document.querySelectorAll('.subtab').forEach(el=>{
@@ -759,7 +947,23 @@ document.querySelectorAll('.tab-btn').forEach(btn=>{
     document.getElementById(btn.dataset.panel).classList.add('active');
     if(btn.dataset.panel==='panel-stats') renderStats();
     if(btn.dataset.panel==='panel-manage') renderManage();
+    if(btn.dataset.panel==='panel-foster') renderFoster();
   });
+});
+document.querySelectorAll('.tz-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tz-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    fosterTz = btn.dataset.tz;
+    renderFoster();
+  });
+});
+document.getElementById('openLogPage').addEventListener('click', ()=>{
+  document.getElementById('logPage').classList.add('open');
+  pruneAndRenderLogs();
+});
+document.getElementById('logBackBtn').addEventListener('click', ()=>{
+  document.getElementById('logPage').classList.remove('open');
 });
 document.querySelectorAll('.accordion-head').forEach(head=>{
   head.addEventListener('click', ()=>{
@@ -790,6 +994,13 @@ document.getElementById('addEventBtn').onclick=()=>{
   addEventTaskFn(v, cadenceSel.value, dateInput.value||null);
   nameInput.value=''; dateInput.value='';
 };
+document.getElementById('addTodoBtn').onclick=()=>{
+  const input=document.getElementById('newTodoInput'); const v=input.value.trim();
+  if(!v){ showToast('请输入待办内容'); return; } addTodo(v); input.value='';
+};
+document.getElementById('newTodoInput').addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){ document.getElementById('addTodoBtn').click(); }
+});
 document.getElementById('exportBtn').onclick=exportBackup;
 document.getElementById('importBtn').onclick=()=>document.getElementById('importFile').click();
 document.getElementById('importFile').onchange=(e)=>{ const f=e.target.files[0]; if(f) importBackupFile(f); e.target.value=''; };
@@ -832,7 +1043,13 @@ onAuthStateChanged(auth, async(user)=>{
     document.getElementById('appRoot').classList.remove('visible');
   }
 });
-setInterval(()=>{ if(currentUser) renderClock(); }, 30000);
+setInterval(()=>{
+  if(!currentUser) return;
+  renderClock();
+  updateFosterBadge();
+  const fosterPanel = document.getElementById('panel-foster');
+  if(fosterPanel && fosterPanel.classList.contains('active')) renderFoster();
+}, 30000);
 window.addEventListener('online', ()=>{ if(currentUser) setSyncStatus('online'); });
 window.addEventListener('offline', ()=>{ if(currentUser) setSyncStatus('offline'); });
 </script>
